@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.team.xg">
+
+    <application
+        android:name=".BookApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 测试进程间通讯之 AIDL -->
+
+        <activity
+            android:name=".book.greendao.activity.NoteActivity"
+            android:label="@string/title_activity_note"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <service android:name=".book.greendao.service.NoteService"></service>
+    </application>
+
+</manifest>
