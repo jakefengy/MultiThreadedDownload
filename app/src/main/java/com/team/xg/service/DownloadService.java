@@ -2,65 +2,74 @@ package com.team.xg.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.team.xg.book.greendao.entity.INoteManager;
-import com.team.xg.book.greendao.entity.Note;
+import com.team.xg.download.DownloadInfo;
+import com.team.xg.download.DownloadManager;
+import com.team.xg.download.DownloadTask;
+import com.team.xg.download.IDownloadListener;
+import com.team.xg.download.ITaskManager;
 
 import java.util.List;
 
 public class DownloadService extends Service {
 
+    private DownloadManager mDownloadManager;
 
-    private Binder mNoteBinder = new INoteManager.Stub() {
+    private IBinder iTaskManager = new ITaskManager.Stub() {
+
         @Override
-        public void addNote(Note note) throws RemoteException {
-            com.team.xg.book.manager.GreenManager.getInstance().addNote(note);
+        public List<DownloadInfo> getAllTask() throws RemoteException {
+
+            return mDownloadManager.getAllTask();
         }
 
         @Override
-        public void updateNote(Note note) throws RemoteException {
-            com.team.xg.book.manager.GreenManager.getInstance().updateNote(note);
+        public void addTask(DownloadInfo task) throws RemoteException {
+            mDownloadManager.addTask(task);
         }
 
         @Override
-        public void deleteNote(Note note) throws RemoteException {
-            com.team.xg.book.manager.GreenManager.getInstance().delNote(note);
+        public void pauseTask(String url) throws RemoteException {
+            mDownloadManager.pauseTask(url);
         }
 
         @Override
-        public List<Note> getNotes() throws RemoteException {
-            return com.team.xg.book.manager.GreenManager.getInstance().getNotes();
+        public void deleteTask(String url) throws RemoteException {
+            mDownloadManager.deleteTask(url);
+        }
+
+        @Override
+        public void continueTask(String url) throws RemoteException {
+            mDownloadManager.continueTask(url);
+        }
+
+        @Override
+        public void registerListener(IDownloadListener listener) throws RemoteException {
+            if (listener != null) {
+                mDownloadManager.registerListener(listener);
+            }
+        }
+
+        @Override
+        public void unregisterListener(IDownloadListener listener) throws RemoteException {
+            if (listener != null) {
+                mDownloadManager.unregisterListener(listener);
+            }
         }
     };
 
     @Override
-    public IBinder onBind(Intent intent) {
-
-        Bundle bundle = intent.getExtras();
-        if (bundle == null) {
-            return null;
-        }
-
-        if (bundle.getString("ServiceKey").equals("Note")) {
-            return mNoteBinder;
-        } else if (bundle.getString("ServiceKey").equals("Book")) {
-            return null;
-        } else {
-            return null;
-        }
-
+    public void onCreate() {
+        super.onCreate();
+        mDownloadManager = new DownloadManager(this);
+        mDownloadManager.reBroadcastAddAllTask();
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-
-        com.team.xg.book.manager.GreenManager.getInstance().initGreenDao(getApplicationContext(), "GreenTest.db");
-
+    public IBinder onBind(Intent intent) {
+        return iTaskManager;
     }
 
     @Override
